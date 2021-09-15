@@ -1,42 +1,59 @@
 package com.jobsity.tvmaze.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ProgressBar
+import android.view.*
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.jobsity.tvmaze.R
-import com.jobsity.tvmaze.api.Show
+import com.jobsity.tvmaze.model.Show
 import kotlinx.coroutines.launch
+import com.jobsity.tvmaze.R
 
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
+    private val adapter = ShowsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
-        val adapter = ShowsAdapter()
         recyclerView.adapter = adapter
+        observeShows(null)
+    }
 
-        val viewModel: MainViewModel by viewModels()
-        val progressBar = findViewById<ProgressBar>(R.id.progress_bar)
+    private fun observeShows(query: String?) {
         lifecycleScope.launch {
-            viewModel.pagedShows.observe(this@MainActivity, {
-                progressBar.visibility = View.GONE
-                recyclerView.visibility = View.VISIBLE
+            viewModel.getShows(query).observe(this@MainActivity, {
                 adapter.submitData(lifecycle, it)
             })
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        val menuItem = menu.findItem(R.id.action_search)
+        val searchView = menuItem.actionView as SearchView
+        searchView.setOnQueryTextListener(SearchListener())
+        return true
+    }
+
+    inner class SearchListener : SearchView.OnQueryTextListener {
+
+        override fun onQueryTextSubmit(query: String): Boolean {
+            return onQueryTextChange(query)
+        }
+
+        override fun onQueryTextChange(query: String?): Boolean {
+            observeShows(query)
+            return true
         }
     }
 
@@ -54,6 +71,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     class ShowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         private val text1: TextView = itemView.findViewById(android.R.id.text1)
         private val text2: TextView = itemView.findViewById(android.R.id.text2)
 
@@ -64,6 +82,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     object ShowComparator : DiffUtil.ItemCallback<Show>() {
+
         override fun areItemsTheSame(oldItem: Show, newItem: Show): Boolean {
             return oldItem.id == newItem.id
         }
