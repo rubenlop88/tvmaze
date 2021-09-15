@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="columns">5</integer>
+    <dimen name="app_bar_height">200dp</dimen>
     <dimen name="fab_margin">48dp</dimen>
-    <dimen name="text_margin">48dp</dimen>
 </resources>

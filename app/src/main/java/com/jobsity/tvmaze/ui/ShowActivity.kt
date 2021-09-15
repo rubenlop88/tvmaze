@@ -7,18 +7,15 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jobsity.tvmaze.R
 import com.jobsity.tvmaze.databinding.ActivityShowBinding
 import com.jobsity.tvmaze.model.Episode
-import com.jobsity.tvmaze.model.Show
 import com.squareup.picasso.Picasso
 
 class ShowActivity : AppCompatActivity() {
@@ -47,6 +44,9 @@ class ShowActivity : AppCompatActivity() {
 
         viewModel.getShow(showId).observe(this, { show ->
             binding.toolbarLayout.title = show.name
+            binding.genres.text = show.genres.joinToString(separator = ", ") { it }
+            binding.days.text = show.schedule.days.joinToString(separator = ", ") { it }
+            binding.time.text = show.schedule.time
             Picasso.get().load(show.image.original)
                 .fit().centerCrop()
                 .into(binding.imageView)
@@ -76,12 +76,14 @@ class ShowActivity : AppCompatActivity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpisodeViewHolder {
             val inflater = LayoutInflater.from(parent.context)
-            val view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false)
+            val view = inflater.inflate(R.layout.episode_item, parent, false)
             return EpisodeViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: EpisodeViewHolder, position: Int) {
-            holder.bind(episodes[position])
+            val episode = episodes[position]
+            val showSeason = position == 0 || episodes[position - 1].season != episode.season
+            holder.bind(episode, showSeason)
         }
 
         override fun getItemCount(): Int {
@@ -91,17 +93,24 @@ class ShowActivity : AppCompatActivity() {
 
     inner class EpisodeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val text: TextView = itemView.findViewById(android.R.id.text1)
+        private val season: TextView = itemView.findViewById(R.id.season_view)
+        private val name: TextView = itemView.findViewById(R.id.name_view)
         private var episode: Episode? = null
 
         init {
-            itemView.setOnClickListener {
+            name.setOnClickListener {
             }
         }
 
-        fun bind(episode: Episode) {
+        fun bind(episode: Episode, showSeason: Boolean) {
             this.episode = episode
-            this.text.text = episode.name
+            this.name.text = episode.name
+            if (showSeason) {
+                this.season.visibility = View.VISIBLE
+                this.season.text = "SEASON ${episode.season}"
+            } else {
+                this.season.visibility = View.GONE
+            }
         }
     }
 
