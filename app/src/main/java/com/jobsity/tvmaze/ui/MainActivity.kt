@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    class ShowsAdapter : PagingDataAdapter<Show, ShowViewHolder>(ShowComparator) {
+    inner class ShowsAdapter : PagingDataAdapter<Show, ShowViewHolder>(ShowComparator) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShowViewHolder {
             val inflater = LayoutInflater.from(parent.context)
@@ -73,14 +73,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    class ShowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ShowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val image: ImageView = itemView.findViewById(R.id.image_view)
         private val text: TextView = itemView.findViewById(R.id.text_view)
+        private var show: Show? = null
+
+        init {
+            itemView.setOnClickListener {
+                show?.let {
+                    ShowActivity.start(this@MainActivity, it.id)
+                }
+            }
+        }
 
         fun bind(show: Show?) {
-            text.text = show?.name
-            show?.image?.medium?.let {
+            this.show = show
+            this.text.text = show?.name
+            this.show?.image?.medium?.let {
                 Picasso.get().load(it).into(image)
             }
         }
