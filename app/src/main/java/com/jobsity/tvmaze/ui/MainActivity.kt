@@ -6,13 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jobsity.tvmaze.R
 import com.jobsity.tvmaze.api.Show
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,54 +29,47 @@ class MainActivity : AppCompatActivity() {
         val adapter = ShowsAdapter()
         recyclerView.adapter = adapter
 
-        val model: MainViewModel by viewModels()
-        model.shows.observe(this, { result ->
-
-            val progressBar = findViewById<ProgressBar>(R.id.progress_bar)
-            progressBar.visibility = View.GONE
-
-            when (result) {
-                is Result.Success -> {
-                    recyclerView.visibility = View.VISIBLE
-                    adapter.setShows(result.data)
-                }
-                is Result.Error -> {
-                    Toast.makeText(this, "Error Loading Shows", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }
-        })
+        val viewModel: MainViewModel by viewModels()
+        val progressBar = findViewById<ProgressBar>(R.id.progress_bar)
+        lifecycleScope.launch {
+            viewModel.pagedShows.observe(this@MainActivity, {
+                progressBar.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+                adapter.submitData(lifecycle, it)
+            })
+        }
     }
 
-    class ShowsAdapter : RecyclerView.Adapter<ShowViewHolder>() {
-
-        private val shows: MutableList<Show> = mutableListOf()
-
-        fun setShows(shows: List<Show>) {
-            this.shows.addAll(shows)
-            notifyItemRangeInserted(0, shows.size - 1)
-        }
+    class ShowsAdapter : PagingDataAdapter<Show, ShowViewHolder>(ShowComparator) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShowViewHolder {
             val inflater = LayoutInflater.from(parent.context)
-            val view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false)
+            val view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false)
             return ShowViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: ShowViewHolder, position: Int) {
-            holder.bind(shows[position])
-        }
-
-        override fun getItemCount(): Int {
-            return shows.size
+            holder.bind(getItem(position))
         }
     }
 
     class ShowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val textView: TextView = itemView.findViewById(android.R.id.text1)
+        private val text1: TextView = itemView.findViewById(android.R.id.text1)
+        private val text2: TextView = itemView.findViewById(android.R.id.text2)
 
-        fun bind(show: Show) {
-            textView.text = show.name
+        fun bind(show: Show?) {
+            text1.text = show?.name
+            text2.text = show?.id.toString()
+        }
+    }
+
+    object ShowComparator : DiffUtil.ItemCallback<Show>() {
+        override fun areItemsTheSame(oldItem: Show, newItem: Show): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Show, newItem: Show): Boolean {
+            return oldItem == newItem
         }
     }
 }
