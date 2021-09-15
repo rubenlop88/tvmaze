@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.jobsity.tvmaze.api.TvMazeService
+import com.jobsity.tvmaze.model.Episode
 import com.jobsity.tvmaze.model.Show
 
 class ShowViewModel : ViewModel() {
@@ -13,6 +14,12 @@ class ShowViewModel : ViewModel() {
     fun getShow(id: Long): LiveData<Show> {
         return liveData {
             emit(backend.getShow(id))
+        }
+    }
+
+    fun getEpisodes(id: Long): LiveData<List<Episode>> {
+        return liveData {
+            emit(backend.getEpisodes(id))
         }
     }
 }

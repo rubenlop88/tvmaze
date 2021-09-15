@@ -1,5 +1,6 @@
 package com.jobsity.tvmaze.api
 
+import com.jobsity.tvmaze.model.Episode
 import com.jobsity.tvmaze.model.SearchResult
 import com.jobsity.tvmaze.model.Show
 import retrofit2.Retrofit
@@ -18,6 +19,9 @@ interface TvMazeService {
 
     @GET("shows/{id}")
     suspend fun getShow(@Path("id") id: Long): Show
+
+    @GET("shows/{id}/episodes")
+    suspend fun getEpisodes(@Path("id") id: Long): List<Episode>
 
     companion object {
         private const val BASE_URL = "https://api.tvmaze.com/"
