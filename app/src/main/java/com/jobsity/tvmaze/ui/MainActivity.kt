@@ -2,6 +2,7 @@ package com.jobsity.tvmaze.ui
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -9,11 +10,12 @@ import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jobsity.tvmaze.model.Show
 import kotlinx.coroutines.launch
 import com.jobsity.tvmaze.R
+import com.squareup.picasso.Picasso
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,8 +25,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
+        val columns = resources.getInteger(R.integer.columns)
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView.layoutManager = GridLayoutManager(this, columns)
         recyclerView.adapter = adapter
         observeShows(null)
     }
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShowViewHolder {
             val inflater = LayoutInflater.from(parent.context)
-            val view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false)
+            val view = inflater.inflate(R.layout.show_item, parent, false)
             return ShowViewHolder(view)
         }
 
@@ -72,12 +75,14 @@ class MainActivity : AppCompatActivity() {
 
     class ShowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val text1: TextView = itemView.findViewById(android.R.id.text1)
-        private val text2: TextView = itemView.findViewById(android.R.id.text2)
+        private val image: ImageView = itemView.findViewById(R.id.image_view)
+        private val text: TextView = itemView.findViewById(R.id.text_view)
 
         fun bind(show: Show?) {
-            text1.text = show?.name
-            text2.text = show?.id.toString()
+            text.text = show?.name
+            show?.image?.medium?.let {
+                Picasso.get().load(it).into(image)
+            }
         }
     }
 
