@@ -3,6 +3,7 @@ package com.jobsity.tvmaze.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -44,6 +45,7 @@ class ShowActivity : AppCompatActivity() {
 
         viewModel.getShow(showId).observe(this, { show ->
             binding.toolbarLayout.title = show.name
+            binding.summary.text = Html.fromHtml(show.summary)
             binding.genres.text = show.genres.joinToString(separator = ", ") { it }
             binding.days.text = show.schedule.days.joinToString(separator = ", ") { it }
             binding.time.text = show.schedule.time
