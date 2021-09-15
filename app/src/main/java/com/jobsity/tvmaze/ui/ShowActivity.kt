@@ -8,15 +8,20 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
 import com.jobsity.tvmaze.R
 import com.jobsity.tvmaze.databinding.ActivityShowBinding
 import com.jobsity.tvmaze.model.Episode
+import com.jobsity.tvmaze.model.Image
 import com.squareup.picasso.Picasso
 
 class ShowActivity : AppCompatActivity() {
@@ -49,9 +54,7 @@ class ShowActivity : AppCompatActivity() {
             binding.genres.text = show.genres.joinToString(separator = ", ") { it }
             binding.days.text = show.schedule.days.joinToString(separator = ", ") { it }
             binding.time.text = show.schedule.time
-            Picasso.get().load(show.image.original)
-                .fit().centerCrop()
-                .into(binding.imageView)
+            Picasso.get().load(show.image.original).fit().centerCrop().into(binding.imageView)
         })
 
         viewModel.getEpisodes(showId).observe(this, { episodes ->
@@ -101,6 +104,25 @@ class ShowActivity : AppCompatActivity() {
 
         init {
             name.setOnClickListener {
+                val dialog = MaterialDialog(this@ShowActivity)
+                    .customView(R.layout.episode_dialog, scrollable = true)
+                val customView = dialog.getCustomView()
+
+                val nameView = customView.findViewById<TextView>(R.id.name_view)
+                nameView.text = episode?.name
+
+                val seasonView = customView.findViewById<TextView>(R.id.season_view)
+                seasonView.text = "Season ${episode?.season} Episode ${episode?.number}"
+
+                val summaryView = customView.findViewById<TextView>(R.id.summary_view)
+                summaryView.text = Html.fromHtml(episode?.summary)
+
+                val imageView = customView.findViewById<ImageView>(R.id.image_view)
+                episode?.image?.original?.let {
+                    Picasso.get().load(it).fit().centerCrop().into(imageView)
+                }
+
+                dialog.show()
             }
         }
 
