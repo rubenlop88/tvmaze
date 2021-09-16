@@ -64,11 +64,6 @@ class ShowActivity : AppCompatActivity() {
             binding.recyclerView.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         })
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
