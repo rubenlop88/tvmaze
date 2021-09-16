@@ -13,6 +13,9 @@
     <style name="Theme.TvMaze.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">#33000000</item>
     </style>
 
     <style name="Theme.TvMaze.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

@@ -19,37 +19,39 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
 import com.jobsity.tvmaze.R
-import com.jobsity.tvmaze.databinding.ActivityShowBinding
+import com.jobsity.tvmaze.databinding.ShowActivityBinding
 import com.jobsity.tvmaze.model.Episode
-import com.jobsity.tvmaze.model.Image
 import com.squareup.picasso.Picasso
 
 class ShowActivity : AppCompatActivity() {
 
     companion object {
-        fun start(context: Context, showId: Long) {
+        fun start(context: Context, showId: Long, showName: String) {
             val intent = Intent(context, ShowActivity::class.java)
             intent.putExtra("show_id", showId)
+            intent.putExtra("show_name", showName)
             context.startActivity(intent)
         }
     }
 
     private val viewModel: ShowViewModel by viewModels()
-    private lateinit var binding: ActivityShowBinding
+    private lateinit var binding: ShowActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityShowBinding.inflate(layoutInflater)
+        binding = ShowActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val showId = intent.getLongExtra("show_id", -1L)
+        val showName = intent.getStringExtra("show_name")
+        binding.toolbarLayout.title = showName
+
 
         viewModel.getShow(showId).observe(this, { show ->
-            binding.toolbarLayout.title = show.name
             binding.summary.text = Html.fromHtml(show.summary)
             binding.genres.text = show.genres.joinToString(separator = ", ") { it }
             binding.days.text = show.schedule.days.joinToString(separator = ", ") { it }

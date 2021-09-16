@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         init {
             itemView.setOnClickListener {
                 show?.let {
-                    ShowActivity.start(this@MainActivity, it.id)
+                    ShowActivity.start(this@MainActivity, it.id, it.name)
                 }
             }
         }
